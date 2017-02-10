@@ -12,14 +12,25 @@ class Image(object):
                 self.width = w
                 self.height = h
 
-        def drawTo(self, name):
+        def savePpm(self, name):
                 with open(name, 'w') as f:
                         f.write('P3 %d %d 255\n' % (self.width, self.height))
                         for row in self.pixels:
                                 for rgb in row:
                                         f.write('%d %d %d ' % rgb)
                                 f.write('\n')
-                
+
+
+        def saveAs(self, name):
+                self.savePpm('temp.ppm')
+                os.system('convert temp.ppm ' + name)
+                os.system('rm temp.ppm')
+
+        def display(self):  # displays image and deletes after
+                self.savePpm('temp.ppm')
+                os.system('display temp.ppm')
+                os.system('rm temp.ppm')
+
         def setPixel(self, x, y, col):
                 self.pixels[y][x] = col
 
