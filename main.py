@@ -3,6 +3,24 @@ from base import Image
 from sys import argv
 
 def line(x0, y0, x1, y1):
+    if x0 > x1:  # :)
+        x0 ^= x1
+        x1 ^= x0
+        x0 ^= x1
+        y0 ^= y1
+        y1 ^= y0
+        y0 ^= y1
+    if y0 < y1:  # q1
+        if y1 - y0 > x1 - x0:  # o2
+            return line2(x0, y0, x1, y1)
+        return line1(x0, y0, x1, y1)  # o1
+    # q4
+    if y0 - y1 > x1 - x0:  # o7
+        return line7(x0, y0, x1, y1)
+    return line8(x0, y0, x1, y1)
+
+
+def line1(x0, y0, x1, y1):
     pts = []
     x = x0
     y = y0
@@ -19,12 +37,72 @@ def line(x0, y0, x1, y1):
         d += a
     return pts
 
-img = Image(1000, 500)
-if len(argv) < 6:
-    print 'Usage: python main.py <display | save | saveconv> <x1> <y1> <x2> <y2>'
+def line2(x0, y0, x1, y1):
+    pts = []
+    x = x0
+    y = y0
+    a = y1 - y0
+    b = 2 * (x0 - x1)
+    d = a + b
+    a *= 2
+    while y <= y1:
+        pts.append((x, y))
+        if d < 0:
+            x += 1
+            d += a
+        y += 1
+        d += b
+    return pts
+
+def line7(x0, y0, x1, y1):
+    pts = []
+    x = x0
+    y = y0
+    a = y1 - y0
+    b = 2 * (x0 - x1)
+    d = a - b
+    a *= 2
+    while y >= y1:
+        pts.append((x, y))
+        if d > 0:
+            x += 1
+            d += a
+        y -= 1
+        d -= b
+    return pts
+
+def line8(x0, y0, x1, y1):
+    pts = []
+    x = x0
+    y = y0
+    a = 2 * (y1 - y0)
+    b = x0 - x1
+    d = a - b
+    b *= 2
+    while x <= x1:
+        pts.append((x, y))
+        if d < 0:
+            y -= 1
+            d -= b
+        x += 1
+        d += a
+    return pts
+
+
+img = Image(500, 500)
+if len(argv) < 2:
+    print 'Usage: python main.py <display | save | saveconv>'
     exit(1)
-for pt in line(*[int(i) for i in argv[2:]]):
-    img.setPixel(pt[0], 499 - pt[1], (255,0,0))
+xs = range(-700, 700, 70)
+ys = [500 - x for x in xs]
+ys2 = [x - 500 for x in xs]
+xys = zip(xs, ys) + zip(xs, ys2)
+xys.append((500, 500))
+xys.append((0, 0))
+pts = [pt for coords in xys for pt in line(250, 250, *coords)]
+for pt in pts:
+    if 500 > pt[0] >= 0 and 500 > pt[1] >= 0:
+        img.setPixel(pt[0], 499 - pt[1], (255,0,0))
 
 if argv[1] == 'display':
     img.display()
